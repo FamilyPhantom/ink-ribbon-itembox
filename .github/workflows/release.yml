@@ -1,0 +1,35 @@
+name: Release Module
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set manifest URLs from the release tag
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          REPO="${{ github.repository }}"
+          jq --arg v "$VERSION" \
+             --arg url "https://github.com/$REPO" \
+             --arg manifest "https://github.com/$REPO/releases/latest/download/module.json" \
+             --arg download "https://github.com/$REPO/releases/download/$TAG/ink-ribbon-itembox.zip" \
+             '.version=$v | .url=$url | .manifest=$manifest | .download=$download' \
+             module.json > module.tmp && mv module.tmp module.json
+
+      - name: Build zip (module.json at root)
+        run: zip -r ink-ribbon-itembox.zip . -x ".git/*" ".github/*" ".gitignore" "*.zip"
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            module.json
+            ink-ribbon-itembox.zip
