@@ -1,0 +1,41 @@
+/* Ink Ribbon: Safe Room & Item Box. Builds on the Ink Ribbon system's styles (.ink-ribbon). */
+
+/* Safe Room Item Box drop zone */
+.ink-ribbon .inv-itembox {
+  display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; cursor: copy;
+  border: 2px dashed #8a7a5c; background: #efe7d6; color: var(--ir-muted); transition: background .2s, border-color .2s;
+}
+.ink-ribbon .inv-itembox.open { border-style: solid; border-color: #6b5530; background: linear-gradient(#f3ead6, #e3d5b6); color: var(--ir-ink); }
+.ink-ribbon .inv-itembox.drop-hover { border-color: var(--ir-green); background: #dfeccf; }
+.ink-ribbon .box-lid {
+  flex: 0 0 auto; width: 44px; height: 32px; border-radius: 4px 4px 2px 2px; position: relative;
+  background: linear-gradient(#7a5a32 0 40%, #5b4224 40% 46%, #7a5a32 46%); border: 2px solid #3b2a16;
+}
+.ink-ribbon .box-lid::after { content: ""; position: absolute; left: 50%; top: 9px; width: 8px; height: 9px; transform: translateX(-50%); background: #d4b11c; border: 1px solid #3b2a16; }
+.ink-ribbon .inv-itembox.drop-hover .box-lid { background: linear-gradient(#7a5a32 0 22%, #2b1f12 22% 46%, #7a5a32 46%); }
+.ink-ribbon .box-text b { display: block; font-family: var(--ir-head); text-transform: uppercase; letter-spacing: 1px; font-size: 14px; }
+.ink-ribbon .box-text small { font-size: 11px; }
+.ink-ribbon .box-head { display: flex; align-items: center; gap: 10px; }
+.ink-ribbon .box-contents { display: grid; grid-template-columns: repeat(auto-fill, 52px); gap: 4px; }
+.ink-ribbon .box-contents .hint { grid-column: 1 / -1; }
+.ink-ribbon .box-tile { width: 52px; height: 52px; margin: 0; cursor: grab; }
+.ink-ribbon .box-tile img { padding: 5px 5px 12px; }
+.ink-ribbon .box-tile .tile-badge { bottom: 11px; font-size: 10px; }
+.ink-ribbon .box-tile .tile-name { font-size: 8px; line-height: 11px; }
+.ink-ribbon .box-tile:hover { box-shadow: inset 0 0 0 2px #7dff6a, 0 0 8px rgba(125, 255, 106, .5); }
+
+/* Item Box sheet (GM) */
+.ink-ribbon .ir-saferoom { width: auto; padding: 0 10px; height: 34px; border-color: #555 !important; }
+.ink-ribbon .ir-saferoom.open { background: #2f5e22 !important; box-shadow: 0 0 10px rgba(80, 180, 60, .5); }
+.ink-ribbon h4.box-section { font-family: var(--ir-head); text-transform: uppercase; font-size: 12px; letter-spacing: 1px; color: var(--ir-muted); margin: 8px 0 2px; border-bottom: 1px solid var(--ir-line); }
+.ink-ribbon .box-img { width: 36px; }
+.ink-ribbon .box-img img { width: 30px; height: 30px; background: #26231f; border: 1px solid #000; padding: 2px; }
+.ink-ribbon .box-badge { font-family: var(--ir-head); color: #2f5e22; margin-left: 4px; }
+.ink-ribbon .box-give { white-space: nowrap; text-align: right; width: 210px; }
+.ink-ribbon .box-give select { height: 22px; font-size: 11px; max-width: 140px; }
+.ink-ribbon tr.draggable { cursor: grab; }
+
+#ir-horror a.on { color: #7fe06a; text-shadow: 0 0 6px #3f7a2b; }
+#ir-horror.safe { border-color: #3f7a2b; box-shadow: 0 0 12px rgba(63, 122, 43, .45); }
+#ir-horror .hsafe { color: #7fe06a; text-shadow: 0 0 6px #3f7a2b; animation: ir-safe 3s ease-in-out infinite; }
+@keyframes ir-safe { 50% { opacity: .55; } }

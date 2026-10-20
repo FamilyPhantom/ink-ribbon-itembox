@@ -1,0 +1,43 @@
+<div class="ir-sheet">
+  <header class="ir-header">
+    <img class="ir-portrait small" src="{{actor.img}}" data-action="editImage" data-edit="img" title="{{actor.name}}">
+    <div class="ir-identity">
+      <input class="ir-name" type="text" name="name" value="{{actor.name}}">
+      <span class="hint">Shared by the whole party. In a Safe Room, survivors see it on their Inventory tab and can stash or take items.</span>
+    </div>
+    <button type="button" class="ir-saferoom {{#if safeRoom}}open{{/if}}" data-action="safeRoom"
+      data-tooltip="Survivors can only use the box while a Safe Room is open">
+      {{#if safeRoom}}Safe Room: OPEN{{else}}Safe Room: closed{{/if}}</button>
+  </header>
+
+  <section class="ir-body">
+    <div class="ir-box">
+      <h3>Contents <span class="hint">{{count}} item(s)</span></h3>
+      {{#each sections}}
+        <h4 class="box-section">{{label}}</h4>
+        <table class="ir-table">
+          <tbody>
+          {{#each rows}}
+            <tr data-item-id="{{id}}">
+              <td class="box-img"><img src="{{img}}" alt=""></td>
+              <td>{{name}} {{#if badge}}<b class="box-badge">{{badge}}</b>{{/if}}</td>
+              <td class="box-give">
+                <select class="give-to">
+                  <option value="">Give to...</option>
+                  {{#each @root.characters}}<option value="{{id}}">{{name}}</option>{{/each}}
+                </select>
+                <button type="button" class="small" data-action="give">Give</button>
+              </td>
+              <td class="ir-controls"><a data-action="editItem" data-tooltip="Edit">&#9998;</a><a data-action="deleteItem" data-tooltip="Delete">&#10005;</a></td>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+      {{else}}
+        <p class="hint">The box is empty. Items the survivors stash will show up here.</p>
+      {{/each}}
+    </div>
+    <p class="hint">Drag a row onto a survivor's inventory grid to hand it over, or use Give. Stacks of the same gear merge automatically; Give asks how many.</p>
+    <label class="ir-wide">GM notes<textarea name="system.notes" rows="3">{{system.notes}}</textarea></label>
+  </section>
+</div>

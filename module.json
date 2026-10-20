@@ -1,0 +1,16 @@
+{
+  "id": "ink-ribbon-itembox",
+  "title": "Ink Ribbon: Safe Room & Item Box",
+  "description": "Optional add-on for the Ink Ribbon system: the GM opens Safe Rooms, and survivors share a Resident Evil style Item Box they can stash in and take from. Not part of the Ink Ribbon rules.",
+  "version": "0.1.0",
+  "compatibility": { "minimum": "14", "verified": "14" },
+  "authors": [{ "name": "Conrad" }],
+  "relationships": {
+    "systems": [{ "id": "ink-ribbon", "type": "system", "compatibility": { "minimum": "0.5.0" } }]
+  },
+  "esmodules": ["scripts/itembox.mjs"],
+  "styles": ["styles/itembox.css"],
+  "languages": [{ "lang": "en", "name": "English", "path": "lang/en.json" }],
+  "documentTypes": { "Actor": { "storage": {} } },
+  "socket": true
+}
