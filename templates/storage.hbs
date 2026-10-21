@@ -5,9 +5,8 @@
       <input class="ir-name" type="text" name="name" value="{{actor.name}}">
       <span class="hint">Shared by the whole party. In a Safe Room, survivors see it on their Inventory tab and can stash or take items.</span>
     </div>
-    <button type="button" class="ir-saferoom {{#if safeRoom}}open{{/if}}" data-action="safeRoom"
-      data-tooltip="Survivors can only use the box while a Safe Room is open">
-      {{#if safeRoom}}Safe Room: OPEN{{else}}Safe Room: closed{{/if}}</button>
+    <span class="ir-saferoom {{#if safeRoom}}open{{/if}}" data-tooltip="Open or close Safe Rooms from the Horror bar">
+      {{#if safeRoom}}Safe Room: OPEN{{else}}Safe Room: closed{{/if}}</span>
   </header>
 
   <section class="ir-body">

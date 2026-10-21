@@ -1,7 +1,7 @@
 /**
- * Ink Ribbon: Safe Room & Item Box (optional add-on module for the Ink Ribbon system).
+ * Ink Ribbon: Item Box (optional add-on module for the Ink Ribbon system).
  *
- * - GM opens / closes a Safe Room from the Horror bar.
+ * - The Safe Room itself is part of the Ink Ribbon system (v0.7.0+, Horror bar > Safe Room).
  * - While a Safe Room is open, every survivor's Inventory tab shows the shared Item Box
  *   (Resident Evil style): drag items in to stash them, click or drag them out to take them.
  * - Outside a Safe Room only the GM can open the box (Horror bar > Box).
@@ -19,7 +19,8 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 const inv = () => game.inkRibbon?.inventory;
 
 export const getItemBox = () => game.actors.find(a => a.type === TYPE);
-export const isSafeRoomOpen = () => game.settings.get(MOD, "safeRoom");
+/** The Safe Room is a system rule (Ink Ribbon v0.7.0+): read it from the system. */
+export const isSafeRoomOpen = () => !!game.inkRibbon?.safeRoom?.isOpen();
 const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /* -------------------------------------------- */
@@ -153,18 +154,6 @@ async function giveItem(item, actor, placement = null) {
   return gmTake({ boxItemId: item.id, actorUuid: actor.uuid, quantity, placement, userId: game.user.id });
 }
 
-/** Open / close the Safe Room (GM). */
-export async function toggleSafeRoom() {
-  if (!game.user.isGM) return;
-  const open = !isSafeRoomOpen();
-  if (open && !(await ensureItemBox())) return;
-  await game.settings.set(MOD, "safeRoom", open);
-  ChatMessage.create({
-    speaker: { alias: "Safe Room" },
-    content: `<div class="ir-card"><h3>${open ? "You've reached a Safe Room" : "Leaving the Safe Room"}</h3>
-      <p>${open ? "The Item Box is here. Catch your breath." : "The Item Box is out of reach."}</p></div>`
-  });
-}
 
 /* -------------------------------------------- */
 /*  GM sheet for the box                        */
@@ -179,8 +168,7 @@ class ItemBoxSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     actions: {
       give: ItemBoxSheet.#onGive,
       editItem: ItemBoxSheet.#onEdit,
-      deleteItem: ItemBoxSheet.#onDelete,
-      safeRoom: () => toggleSafeRoom()
+      deleteItem: ItemBoxSheet.#onDelete
     }
   };
   static PARTS = { sheet: { template: `modules/${MOD}/templates/storage.hbs`, scrollable: [".ir-body"] } };
@@ -315,18 +303,17 @@ Hooks.on("renderInkCharacterSheet", (app, element) => {
 /*  Horror bar controls                         */
 /* -------------------------------------------- */
 
+// The system draws the Safe Room button; the module only adds the GM's Box button.
 Hooks.on("inkRibbon.renderHorrorBar", el => {
-  const safe = isSafeRoomOpen();
-  el.classList.toggle("safe", safe);
-  if (game.user.isGM) {
-    el.insertAdjacentHTML("beforeend", `<span class="hsep"></span>
-      <a data-irbox="safe" class="${safe ? "on" : ""}" title="Open or close a Safe Room (survivors can use the Item Box)">Safe Room</a>
-      <a data-irbox="box" title="Open the Item Box">Box</a>`);
-    el.querySelector('[data-irbox="safe"]').addEventListener("click", () => toggleSafeRoom());
-    el.querySelector('[data-irbox="box"]').addEventListener("click", async () => (await ensureItemBox())?.sheet.render(true));
-  } else if (safe) {
-    el.insertAdjacentHTML("beforeend", `<span class="hsep"></span><span class="hsafe">Safe Room</span>`);
-  }
+  if (!game.user.isGM) return;
+  el.insertAdjacentHTML("beforeend", `<a data-irbox="box" title="Open the Item Box">Box</a>`);
+  el.querySelector('[data-irbox="box"]').addEventListener("click", async () => (await ensureItemBox())?.sheet.render(true));
+});
+
+// Safe Room opened or closed (system hook): make sure the box exists, refresh box sheets.
+Hooks.on("inkRibbon.safeRoom", async open => {
+  if (open && game.user === game.users.activeGM) await ensureItemBox();
+  rerender();
 });
 
 /* -------------------------------------------- */
@@ -361,14 +348,10 @@ async function migrateSystemBox() {
 Hooks.once("init", () => {
   CONFIG.Actor.dataModels[TYPE] = StorageData;
   foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, MOD, ItemBoxSheet, { types: [TYPE], makeDefault: true, label: "Safe Room Item Box" });
-  game.settings.register(MOD, "safeRoom", {
-    name: "Safe Room open", scope: "world", config: false, type: Boolean, default: false,
-    onChange: () => { game.inkRibbon?.renderHorrorBar?.(); rerender(); }
-  });
 });
 
 Hooks.once("ready", async () => {
-  if (!game.inkRibbon?.inventory) return console.warn(`${MOD} | Needs the Ink Ribbon system v0.5.0 or later.`);
+  if (!game.inkRibbon?.inventory || !game.inkRibbon?.safeRoom) return ui.notifications.warn("Ink Ribbon Item Box needs the Ink Ribbon system v0.7.0 or later.");
   game.socket.on(SOCKET, data => {
     if (game.user !== game.users.activeGM) return;              // only one GM answers
     if (data?.action === "store") gmStore(data);
@@ -377,7 +360,7 @@ Hooks.once("ready", async () => {
   for (const hook of ["createItem", "updateItem", "deleteItem"]) {
     Hooks.on(hook, item => { if (item.parent?.type === TYPE) rerender(); });
   }
-  game.inkRibbon.itemBox = { getItemBox, isSafeRoomOpen, toggleSafeRoom, storeItem, takeItem };
+  game.inkRibbon.itemBox = { getItemBox, storeItem, takeItem };
   game.inkRibbon.renderHorrorBar?.();                           // add our Horror bar buttons now
   if (game.user === game.users.activeGM) {
     installed();

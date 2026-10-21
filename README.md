@@ -1,8 +1,8 @@
-# Ink Ribbon: Safe Room & Item Box
+# Ink Ribbon: Item Box
 
-Optional add-on module for the **Ink Ribbon** Foundry VTT system (v0.5.0+). It is not part of the Ink Ribbon rules.
+Optional add-on module for the **Ink Ribbon** Foundry VTT system (v0.7.0+). It is not part of the Ink Ribbon rules.
 
-- **Safe Room:** the GM opens or closes a Safe Room from the Horror bar (top of the screen).
+- **Safe Room:** part of the system since v0.7.0. The GM opens or closes it from the Horror bar (top of the screen); this module shows the Item Box while it's open.
 - **Item Box:** one box shared by the whole party, like Resident Evil's. While a Safe Room is open, every survivor's Inventory tab shows it: drag items in to stash them, click or drag them out to take them. Stacks of the same gear merge; moving a stack asks how many.
 - **GM:** the Horror bar's **Box** button opens the box any time (Give items, drag rows onto a survivor's grid, edit or delete).
 
