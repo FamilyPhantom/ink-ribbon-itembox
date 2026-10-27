@@ -146,6 +146,24 @@ async function gmTake({ boxItemId, actorUuid, quantity, placement, userId }) {
   return boxCard(actor, `<b>${esc(actor.name)}</b> takes <b>${esc(item.name)}${qtyText(item, quantity ?? 1)}</b> out of the Item Box.`);
 }
 
+/**
+ * A survivor's item was dropped on the GM's Item Box sheet. Foundry's default would copy it
+ * (create in the box, leave the original), so route it through gmStore, which moves it.
+ * Returns true if handled. Items from the sidebar or a compendium still use the default (a new item).
+ */
+const PACKABLE = ["weapon", "armour", "gear"];
+function storeFromSheet(item, box) {
+  if (!(item?.parent instanceof Actor) || item.parent === box) return false;
+  if (!game.user.isGM) return true;
+  if (!PACKABLE.includes(item.type)) { ui.notifications.warn("Only weapons, armour and gear go in the Item Box."); return true; }
+  (async () => {
+    const quantity = await askQuantity(item, "Store");
+    if (quantity === null) return;
+    await gmStore({ actorUuid: item.parent.uuid, itemId: item.id, quantity, userId: game.user.id });
+  })();
+  return true;
+}
+
 /** GM: hand an item to a survivor from the box sheet (any time, Safe Room or not). */
 async function giveItem(item, actor, placement = null) {
   if (!game.user.isGM || !item || !actor) return;
@@ -204,6 +222,13 @@ class ItemBoxSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   _item(target) { return this.document.items.get(target.closest("[data-item-id]")?.dataset.itemId); }
+
+  /** Backup for the dropActorSheetData hook below: dropping a survivor's item here moves it. */
+  async _onDropItem(event, item) {
+    const doc = item instanceof foundry.abstract.Document ? item : await Item.implementation.fromDropData(item);
+    if (storeFromSheet(doc, this.document)) return null;
+    return super._onDropItem(event, item);
+  }
 
   static #onGive(event, target) {
     const actor = game.actors.get(target.closest("[data-item-id]").querySelector("select.give-to")?.value);
@@ -297,6 +322,13 @@ Hooks.on("renderInkCharacterSheet", (app, element) => {
       app.clearDropHighlight?.();
     });
   }
+});
+
+// Dropping a survivor's item on the Item Box sheet: move it, don't copy it.
+Hooks.on("dropActorSheetData", (actor, sheet, data) => {
+  if (actor?.type !== TYPE || data?.type !== "Item" || !data.uuid) return;
+  const item = fromUuidSync(data.uuid);
+  if (storeFromSheet(item, actor)) return false;
 });
 
 /* -------------------------------------------- */
