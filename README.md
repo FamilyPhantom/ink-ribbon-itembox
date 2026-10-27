@@ -1,15 +1,32 @@
 # Ink Ribbon: Item Box
 
-Optional add-on module for the **Ink Ribbon** Foundry VTT system (v0.7.0+). It is not part of the Ink Ribbon rules.
+An **unofficial, free** add-on module for the **Ink Ribbon Quick-Start** Foundry VTT system
+(`ink-ribbon-quickstart`, v0.9.0 or later). It adds a Resident Evil style shared Item Box.
+It is not part of the Ink Ribbon rules.
 
-- **Safe Room:** part of the system since v0.7.0. The GM opens or closes it from the Horror bar (top of the screen); this module shows the Item Box while it's open.
-- **Item Box:** one box shared by the whole party, like Resident Evil's. While a Safe Room is open, every survivor's Inventory tab shows it: drag items in to stash them, click or drag them out to take them. Stacks of the same gear merge; moving a stack asks how many.
-- **GM:** the Horror bar's **Box** button opens the box any time (Give items, drag rows onto a survivor's grid, edit or delete).
+- **Safe Room:** part of the system. The GM opens or closes it from the Horror bar (top of the screen); this module shows the Item Box while it's open.
+- **Item Box:** one box shared by the whole party. While a Safe Room is open, every survivor's Inventory tab shows it: drag items in to stash them, click or drag them out to take them. Stacks of the same gear merge; moving a stack asks how many. Items are moved, never copied.
+- **GM:** the Horror bar's **Box** button opens the box any time (give items, drag rows onto a survivor's grid, drag a survivor's item onto the box to store it, edit or delete).
 
 Every change to the box is made by the GM's client, so a GM must be online.
 
 ## Install
-- Foundry / The Forge: install from the manifest URL `https://github.com/conrad251125/ink-ribbon-itembox/releases/latest/download/module.json`, then enable it in the world.
-- After installing (or updating `module.json`), fully restart Foundry so the Item Box actor type is registered.
 
-Upgrading from Ink Ribbon system v0.4 (where the box was built in): the old box's contents are moved into the module's box automatically the first time the GM loads the world with this module enabled.
+1. Install the **Ink Ribbon Quick-Start** system first.
+2. In Foundry (or The Forge), open **Add-on Modules → Install Module** and paste:
+
+   ```
+   https://github.com/conrad251125/ink-ribbon-itembox/releases/latest/download/module.json
+   ```
+
+3. Enable it in your world, then **fully restart Foundry** once so the Item Box actor type is registered.
+
+## Legal
+
+- The code is released under the MIT License (see `LICENSE`).
+- Ink Ribbon and all of its content belong to their respective owners. This is an unofficial,
+  non-commercial fan project and is not affiliated with or endorsed by the publisher.
+
+## Issues
+
+<https://github.com/conrad251125/ink-ribbon-itembox/issues>

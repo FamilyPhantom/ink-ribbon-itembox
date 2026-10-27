@@ -1,5 +1,4 @@
-name: Release Module
-
+name: Release
 on:
   release:
     types: [published]
@@ -9,27 +8,54 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      TAG: ${{ github.event.release.tag_name }}
+      REPO: ${{ github.repository }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set manifest URLs from the release tag
+      - name: Set version and URLs from the release tag
         run: |
-          TAG="${{ github.event.release.tag_name }}"
+          if [ -f system.json ]; then MANIFEST=system.json; else MANIFEST=module.json; fi
           VERSION="${TAG#v}"
-          REPO="${{ github.repository }}"
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+'; then
+            echo "::error::Tag '$TAG' isn't a version like v1.2.3"; exit 1
+          fi
+          ID=$(jq -r .id "$MANIFEST")
+          { echo "MANIFEST=$MANIFEST"; echo "VERSION=$VERSION"; echo "ID=$ID"; } >> "$GITHUB_ENV"
           jq --arg v "$VERSION" \
              --arg url "https://github.com/$REPO" \
-             --arg manifest "https://github.com/$REPO/releases/latest/download/module.json" \
-             --arg download "https://github.com/$REPO/releases/download/$TAG/ink-ribbon-itembox.zip" \
+             --arg manifest "https://github.com/$REPO/releases/latest/download/$MANIFEST" \
+             --arg download "https://github.com/$REPO/releases/download/$TAG/$ID.zip" \
              '.version=$v | .url=$url | .manifest=$manifest | .download=$download' \
-             module.json > module.tmp && mv module.tmp module.json
+             "$MANIFEST" > manifest.tmp && mv manifest.tmp "$MANIFEST"
+          cat "$MANIFEST"
 
-      - name: Build zip (module.json at root)
-        run: zip -r ink-ribbon-itembox.zip . -x ".git/*" ".github/*" ".gitignore" "*.zip"
+      - name: Build zip (manifest at the root)
+        run: zip -r "$ID.zip" . -x ".git/*" ".github/*" ".gitignore" "*.zip" "manifest.tmp"
 
-      - name: Upload to release
+      - name: Upload to the GitHub release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            module.json
-            ink-ribbon-itembox.zip
+            ${{ env.MANIFEST }}
+            ${{ env.ID }}.zip
+
+      - name: Publish to the Foundry package listing
+        if: ${{ !github.event.release.prerelease }}
+        env:
+          FOUNDRY_TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
+        run: |
+          if [ -z "$FOUNDRY_TOKEN" ]; then echo "::error::Add the FOUNDRY_RELEASE_TOKEN repository secret first."; exit 1; fi
+          # Foundry wants the manifest for THIS version, not the "latest" one.
+          BODY=$(jq -n --arg id "$ID" --arg v "$VERSION" \
+            --arg m "https://github.com/$REPO/releases/download/$TAG/$MANIFEST" \
+            --arg n "https://github.com/$REPO/releases/tag/$TAG" \
+            --argjson c "$(jq '.compatibility' "$MANIFEST")" \
+            '{id: $id, release: {version: $v, manifest: $m, notes: $n, compatibility: $c}}')
+          echo "$BODY"
+          HTTP=$(curl -sS -o response.json -w "%{http_code}" -X POST \
+            https://foundryvtt.com/_api/packages/release_version/ \
+            -H "Content-Type: application/json" -H "Authorization: $FOUNDRY_TOKEN" -d "$BODY")
+          cat response.json; echo
+          [ "$HTTP" = "200" ] || { echo "::error::Foundry returned HTTP $HTTP"; exit 1; }
