@@ -3,14 +3,48 @@
   "title": "Ink Ribbon: Item Box",
   "description": "Optional add-on for the Ink Ribbon system: while the GM has a Safe Room open, survivors share a Resident Evil style Item Box they can stash in and take from. Not part of the Ink Ribbon rules.",
   "version": "0.2.1",
-  "compatibility": { "minimum": "14", "verified": "14" },
-  "authors": [{ "name": "Conrad" }],
-  "relationships": {
-    "systems": [{ "id": "ink-ribbon", "type": "system", "compatibility": { "minimum": "0.7.0" } }]
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
   },
-  "esmodules": ["scripts/itembox.mjs"],
-  "styles": ["styles/itembox.css"],
-  "languages": [{ "lang": "en", "name": "English", "path": "lang/en.json" }],
-  "documentTypes": { "Actor": { "storage": {} } },
+  "authors": [
+    {
+      "name": "Conrad"
+    }
+  ],
+  "url": "https://github.com/conrad251125/ink-ribbon-itembox",
+  "license": "LICENSE",
+  "readme": "https://github.com/conrad251125/ink-ribbon-itembox#readme",
+  "bugs": "https://github.com/conrad251125/ink-ribbon-itembox/issues",
+  "changelog": "https://github.com/conrad251125/ink-ribbon-itembox/releases",
+  "relationships": {
+    "systems": [
+      {
+        "id": "ink-ribbon-quickstart",
+        "type": "system",
+        "compatibility": {
+          "minimum": "0.9.0"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/itembox.mjs"
+  ],
+  "styles": [
+    "styles/itembox.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "storage": {}
+    }
+  },
   "socket": true
 }
