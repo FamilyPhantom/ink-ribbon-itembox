@@ -16,7 +16,7 @@ Every change to the box is made by the GM's client, so a GM must be online.
 2. In Foundry (or The Forge), open **Add-on Modules → Install Module** and paste:
 
    ```
-   https://github.com/conrad251125/ink-ribbon-itembox/releases/latest/download/module.json
+   https://github.com/FamilyPhantom/ink-ribbon-itembox/releases/latest/download/module.json
    ```
 
 3. Enable it in your world, then **fully restart Foundry** once so the Item Box actor type is registered.
@@ -29,4 +29,4 @@ Every change to the box is made by the GM's client, so a GM must be online.
 
 ## Issues
 
-<https://github.com/conrad251125/ink-ribbon-itembox/issues>
+<https://github.com/FamilyPhantom/ink-ribbon-itembox/issues>
